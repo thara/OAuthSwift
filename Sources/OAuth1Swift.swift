@@ -160,6 +160,7 @@ open class OAuth1Swift: OAuthSwift {
         if !self.allowMissingOAuthVerifier {
             parameters["oauth_verifier"] = self.client.credential.oauthVerifier
         }
+        parameters["realm"] = ""
 
         if let handle = self.client.post(
             self.accessTokenUrl, parameters: parameters,
