@@ -22,29 +22,32 @@ open class OAuth1Swift: OAuthSwift {
     var requestTokenUrl: String
     var authorizeUrl: String
     var accessTokenUrl: String
+    var scope: String
 
     // MARK: init
-    public init(consumerKey: String, consumerSecret: String, requestTokenUrl: String, authorizeUrl: String, accessTokenUrl: String) {
+    public init(consumerKey: String, consumerSecret: String, requestTokenUrl: String, scope: String, authorizeUrl: String, accessTokenUrl: String) {
         self.consumerKey = consumerKey
         self.consumerSecret = consumerSecret
         self.requestTokenUrl = requestTokenUrl
         self.authorizeUrl = authorizeUrl
         self.accessTokenUrl = accessTokenUrl
+        self.scope = scope
         super.init(consumerKey: consumerKey, consumerSecret: consumerSecret)
         self.client.credential.version = .oauth1
     }
 
     public convenience override init(consumerKey: String, consumerSecret: String) {
-        self.init(consumerKey: consumerKey, consumerSecret: consumerSecret, requestTokenUrl: "", authorizeUrl: "", accessTokenUrl: "")
+        self.init(consumerKey: consumerKey, consumerSecret: consumerSecret, requestTokenUrl: "", scope: "", authorizeUrl: "", accessTokenUrl: "")
     }
 
     public convenience init?(parameters: ConfigParameters) {
         guard let consumerKey = parameters["consumerKey"], let consumerSecret = parameters["consumerSecret"],
-            let requestTokenUrl = parameters["requestTokenUrl"], let authorizeUrl = parameters["authorizeUrl"], let accessTokenUrl = parameters["accessTokenUrl"] else {
+            let requestTokenUrl = parameters["requestTokenUrl"], let scope = parameters["scope"], let authorizeUrl = parameters["authorizeUrl"], let accessTokenUrl = parameters["accessTokenUrl"] else {
             return nil
         }
         self.init(consumerKey: consumerKey, consumerSecret: consumerSecret,
           requestTokenUrl: requestTokenUrl,
+          scope: scope,
           authorizeUrl: authorizeUrl,
           accessTokenUrl: accessTokenUrl)
     }
@@ -54,6 +57,7 @@ open class OAuth1Swift: OAuthSwift {
             "consumerKey": consumerKey,
             "consumerSecret": consumerSecret,
             "requestTokenUrl": requestTokenUrl,
+            "scope": scope,
             "authorizeUrl": authorizeUrl,
             "accessTokenUrl": accessTokenUrl
         ]
@@ -129,6 +133,7 @@ open class OAuth1Swift: OAuthSwift {
     func postOAuthRequestToken(callbackURL: URL, success: @escaping TokenSuccessHandler, failure: FailureHandler?) {
         var parameters = [String: Any]()
         parameters["oauth_callback"] = callbackURL.absoluteString
+        parameters["scope"] = scope
 
         if let handle = self.client.post(
             self.requestTokenUrl, parameters: parameters,
